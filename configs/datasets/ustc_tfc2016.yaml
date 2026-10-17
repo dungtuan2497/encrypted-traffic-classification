@@ -1,0 +1,32 @@
+# Dataset definition: maps pcap files to labels. To switch dataset (e.g. ISCX VPN-nonVPN),
+# write another file like this and point `dataset:` in default.yaml (or --set) to it.
+name: ustc-tfc2016
+raw_dir: data/raw/ustc-tfc2016
+
+# glob (relative to raw_dir) -> label. Several files may map to the same label.
+files:
+  "Benign/BitTorrent/*.pcap": BitTorrent
+  "Benign/Facetime/*.pcap": Facetime
+  "Benign/FTP/*.pcap": FTP
+  "Benign/Gmail/*.pcap": Gmail
+  "Benign/MySQL/*.pcap": MySQL
+  "Benign/Outlook/*.pcap": Outlook
+  "Benign/Skype/*.pcap": Skype
+  "Benign/SMB/*.pcap": SMB
+  "Benign/Weibo/*.pcap": Weibo
+  "Benign/WorldOfWarcraft/*.pcap": WorldOfWarcraft
+  "Malware/Cridex/*.pcap": Cridex
+  "Malware/Geodo/*.pcap": Geodo
+  "Malware/Htbot/*.pcap": Htbot
+  "Malware/Miuref/*.pcap": Miuref
+  "Malware/Neris/*.pcap": Neris
+  "Malware/Nsis-ay/*.pcap": Nsis-ay
+  "Malware/Shifu/*.pcap": Shifu
+  "Malware/Tinba/*.pcap": Tinba
+  "Malware/Virut/*.pcap": Virut
+  "Malware/Zeus/*.pcap": Zeus
+
+# Optional label -> group (used only for reporting)
+groups:
+  benign: [BitTorrent, Facetime, FTP, Gmail, MySQL, Outlook, Skype, SMB, Weibo, WorldOfWarcraft]
+  malware: [Cridex, Geodo, Htbot, Miuref, Neris, Nsis-ay, Shifu, Tinba, Virut, Zeus]

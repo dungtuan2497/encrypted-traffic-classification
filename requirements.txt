@@ -10,5 +10,6 @@ matplotlib>=3.8
 tqdm>=4.66
 rich>=13.7
 pytest>=8.0
+py7zr>=0.21   # extracting the .7z archives of USTC-TFC2016 (make download)
 # Optional (Phase 2 extra baseline, needs `brew install libomp` on macOS):
 # xgboost>=2.0

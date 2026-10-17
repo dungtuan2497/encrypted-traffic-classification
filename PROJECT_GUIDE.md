@@ -8,6 +8,8 @@ File này là bản đặc tả (spec) để xây dựng project từng bước.
 - **Môi trường**: `venv` + `requirements.txt` với `python3.11` (máy chưa có `uv`). XGBoost là phụ thuộc tùy chọn (`make setup-xgb`, macOS cần `brew install libomp`).
 - **Vị trí**: project nằm ngay tại thư mục gốc repo (không tạo thư mục con `encrypted-traffic-classification/`).
 - **Thứ tự**: Phase 0–1 → RF → CNN → Transformer → RQ2, RQ3, báo cáo → (GRU, XGBoost nếu còn thời gian).
+- **Phương án A (Phase 1)**: `min_packets_per_session = 1` thay vì 3 (vẫn bỏ DNS và gói TCP rỗng). Lý do: các lớp lành tính do IXIA sinh ra (BitTorrent, Facetime, MySQL, Outlook, Skype, Gmail) gần như chỉ có session 1–2 gói. Tinba gần như toàn DNS nên bị loại tự động (`min_sessions_per_class = 50`) → **19 lớp**. Ghi vào mục Hạn chế của báo cáo.
+- **Dữ liệu**: `make download` tự clone repo GitHub và giải nén `.7z`. Ba biến thể mask (`none`, `ip`, `ip_port`) được sinh cùng lúc trong `data/processed/bytes/<variant>/`; loại trùng dùng hash của biến thể nghiêm nhất (`ip_port`).
 
 ## 1. Bối cảnh và mục tiêu
 

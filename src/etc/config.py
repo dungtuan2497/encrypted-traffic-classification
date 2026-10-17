@@ -63,6 +63,14 @@ def load_config(*names: str, overrides: list[str] | None = None) -> Config:
     return apply_overrides(cfg, overrides or [])
 
 
+def load_dataset_config(cfg: Config) -> Config:
+    """Load the dataset definition (pcap glob -> label) referenced by `cfg['dataset']`."""
+    path = Path(cfg["dataset"])
+    if not path.is_absolute():
+        path = CONFIG_DIR / path
+    return load_yaml(path)
+
+
 def resolve_path(path: str | Path) -> Path:
     """Resolve a config path relative to the project root."""
     p = Path(path)

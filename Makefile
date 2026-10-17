@@ -1,5 +1,5 @@
 # Pipeline entry points. Run in order:
-#   make setup -> make preprocess -> make rf -> make cnn -> make pretrain -> make finetune
+#   make setup -> make download -> make preprocess -> make rf -> make cnn -> make pretrain -> make finetune
 #   -> make label-efficiency -> make ablation -> make report
 # Extra CLI overrides can be passed via ARGS, e.g.:
 #   make preprocess ARGS="--max-sessions-per-class 200"
@@ -9,7 +9,7 @@ VENV       := .venv
 PY         := $(VENV)/bin/python
 ARGS       ?=
 
-.PHONY: setup setup-xgb preprocess rf cnn gru pretrain finetune label-efficiency ablation report test clean-processed
+.PHONY: setup setup-xgb download preprocess rf cnn gru pretrain finetune label-efficiency ablation report test clean-processed
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -21,8 +21,11 @@ setup:
 setup-xgb:
 	$(PY) -m pip install "xgboost>=2.0"
 
+download:
+	$(PY) scripts/download_ustc.py
+
 preprocess:
-	@echo "[Phase 1] not implemented yet"
+	$(PY) scripts/preprocess.py $(ARGS)
 
 rf:
 	@echo "[Phase 2] not implemented yet"

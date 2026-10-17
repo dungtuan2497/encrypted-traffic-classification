@@ -1,8 +1,10 @@
 # Shared settings for every stage. Model configs are merged on top of this file.
 seed: 42
 
+# Dataset definition (pcap glob -> label), relative to configs/
+dataset: datasets/ustc_tfc2016.yaml
+
 paths:
-  raw_dir: data/raw/ustc-tfc2016
   processed_dir: data/processed
   results_dir: results
   reports_dir: reports
@@ -11,7 +13,13 @@ paths:
 preprocess:
   max_packets_per_session: 32
   max_sessions_per_class: 5000
-  min_packets_per_session: 3
+  # Spec default was 3, lowered to 1 (decision "A"): in USTC-TFC2016 the IXIA-generated
+  # benign classes (BitTorrent, Facetime, MySQL, Outlook, Skype, Gmail) have almost only
+  # 1-2-packet sessions once pure ACKs are dropped, so >= 3 would delete them entirely.
+  min_packets_per_session: 1
+  # Classes with fewer sessions than this after de-dup are excluded (e.g. Tinba, which is
+  # almost entirely DNS traffic and has a single non-DNS session).
+  min_sessions_per_class: 50
   drop_tcp_no_payload: true   # drop pure ACKs / empty TCP segments
   drop_dns: true              # drop port-53 traffic
   seq_len: 32                 # length of the packet-size sequence (GRU)
@@ -19,6 +27,11 @@ preprocess:
   max_bytes: 784              # flat byte vector length (CNN, Wang et al. 2017)
   mask_ip: true               # zero src/dst IP (+ IP/TCP/UDP checksums)
   mask_port: false            # zero src/dst port (RQ3 ablation)
+  # All mask variants (none / ip / ip_port) are written at once so the RQ3 ablation
+  # reuses the same sessions and splits. De-duplication hashes the strictest variant.
+  dedup_variant: ip_port
+  max_packets_per_file: null  # quick-test limit on packets read per pcap (null = all)
+  num_workers: 4              # parallel processes (one class per task)
 
 split:
   train: 0.8
