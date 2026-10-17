@@ -34,10 +34,10 @@ xgb:
 	$(PY) scripts/train_sklearn.py --model xgb $(ARGS)
 
 cnn:
-	@echo "[Phase 3] not implemented yet"
+	$(PY) scripts/train_torch.py --model cnn $(ARGS)
 
 gru:
-	@echo "[Phase 3, optional] not implemented yet"
+	$(PY) scripts/train_torch.py --model gru $(ARGS)
 
 pretrain:
 	@echo "[Phase 4] not implemented yet"
