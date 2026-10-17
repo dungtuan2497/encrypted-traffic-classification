@@ -1,0 +1,32 @@
+# Small ET-BERT-style byte Transformer (review Section 5.3.1): pre-train + fine-tune.
+model:
+  name: transformer
+  vocab_size: 260        # 256 bytes + [PAD], [CLS], [SEP], [MASK]
+  max_len: 512
+  max_packets: 32        # size of the packet-index embedding table
+  d_model: 256
+  n_layers: 4
+  n_heads: 4
+  ffn_dim: 1024
+  dropout: 0.1
+
+pretrain:
+  epochs: 10
+  batch_size: 64
+  lr: 5.0e-4
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  mask_prob: 0.15        # BERT rule: of masked tokens 80% [MASK], 10% random, 10% unchanged
+  mask_token_ratio: 0.8
+  random_token_ratio: 0.1
+
+finetune:
+  epochs: 15
+  batch_size: 64
+  lr_encoder: 5.0e-5
+  lr_head: 1.0e-3
+  weight_decay: 0.01
+  patience: 5
+  class_weight: true
+  label_fraction: 1.0
+  from_scratch: false

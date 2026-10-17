@@ -1,0 +1,17 @@
+# 1D-CNN on raw bytes (Wang et al. 2017; review Section 4.2.2).
+model:
+  name: cnn1d
+  input_len: 784
+  channels: [32, 64]
+  kernel_size: 25
+  fc_dim: 1024
+  dropout: 0.5
+
+train:
+  epochs: 30
+  batch_size: 128
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  patience: 5
+  class_weight: true
+  label_fraction: 1.0

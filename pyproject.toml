@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "etc"
+version = "0.1.0"
+description = "Encrypted traffic classification: from machine learning to pre-training (experiments for Dong et al., Neurocomputing 2025)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "dpkt>=1.9.8",
+    "numpy>=1.26,<2.2",
+    "pandas>=2.1",
+    "pyarrow>=14",
+    "scikit-learn>=1.4",
+    "torch>=2.2",
+    "pyyaml>=6.0",
+    "matplotlib>=3.8",
+    "tqdm>=4.66",
+    "rich>=13.7",
+]
+
+[project.optional-dependencies]
+# XGBoost is optional: on macOS it needs `brew install libomp`.
+xgb = ["xgboost>=2.0"]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

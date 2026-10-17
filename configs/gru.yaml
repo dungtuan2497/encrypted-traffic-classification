@@ -1,0 +1,18 @@
+# Bidirectional GRU on directed packet-size sequences (simplified FS-Net; review Section 4.2.3).
+# Optional model.
+model:
+  name: gru
+  seq_len: 32
+  in_channels: 2
+  hidden: 128
+  num_layers: 2
+  dropout: 0.2
+
+train:
+  epochs: 30
+  batch_size: 128
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  patience: 5
+  class_weight: true
+  label_fraction: 1.0

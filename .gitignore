@@ -1,0 +1,24 @@
+# Environments
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Data (raw pcaps and processed arrays are never committed)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.joblib
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

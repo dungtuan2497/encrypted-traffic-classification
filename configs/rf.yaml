@@ -1,0 +1,17 @@
+# Traditional ML baselines on statistical features (Phase 2).
+model:
+  name: rf
+  n_estimators: 300
+  class_weight: balanced
+  # Grid searched on the validation set
+  grid:
+    max_depth: [null, 20, 40]
+    min_samples_leaf: [1, 2, 5]
+
+xgb:
+  n_estimators: 300
+  grid:
+    max_depth: [4, 6, 8]
+    learning_rate: [0.05, 0.1, 0.3]
+
+top_k_features: 15
