@@ -14,5 +14,6 @@ train:
   lr: 1.0e-3
   weight_decay: 1.0e-4
   patience: 5
+  min_steps: 1500      # stretch epochs/patience when few labels (RQ2)
   class_weight: true
   label_fraction: 1.0

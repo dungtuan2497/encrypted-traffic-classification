@@ -23,10 +23,13 @@ pretrain:
 finetune:
   epochs: 15
   batch_size: 64
-  lr_encoder: 5.0e-5
+  lr_encoder: 5.0e-5     # pre-trained encoder
+  lr_scratch: 5.0e-4     # encoder lr for the --from-scratch baseline
   lr_head: 1.0e-3
+  warmup_ratio: 0.05
   weight_decay: 0.01
   patience: 5
+  min_steps: 1500        # stretch epochs/patience when few labels (RQ2)
   class_weight: true
   label_fraction: 1.0
   from_scratch: false

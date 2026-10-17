@@ -217,6 +217,21 @@ def finalize_run(
     return payload
 
 
+def effective_schedule(tcfg: Config, batches_per_epoch: int) -> tuple[int, int]:
+    """(epochs, patience) guaranteeing at least `min_steps` optimizer steps.
+
+    With few labels (RQ2) an epoch is only a handful of steps, so the epoch budget and
+    the early-stopping patience are stretched by the same factor. Applied identically to
+    every torch model so the label-efficiency comparison stays fair.
+    """
+    epochs, patience = int(tcfg["epochs"]), int(tcfg["patience"])
+    min_steps = int(tcfg.get("min_steps", 0))
+    if min_steps and epochs * batches_per_epoch < min_steps:
+        factor = math.ceil(min_steps / batches_per_epoch) / epochs
+        return math.ceil(epochs * factor), math.ceil(patience * factor)
+    return epochs, patience
+
+
 def limit_indices(idx: np.ndarray, limit: int | None, seed: int) -> np.ndarray:
     """Random subset for quick smoke runs (--limit)."""
     if limit is None or len(idx) <= limit:
@@ -271,9 +286,10 @@ def run_supervised(cfg: Config, seed: int, label_fraction: float, log: Any, limi
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(tcfg["lr"]), weight_decay=float(tcfg["weight_decay"]))
     name = run_name(mname, seed, label_fraction, tag=f"mask-{variant}" if variant else None)
     ckpt = resolve_path(cfg["paths"]["checkpoints_dir"]) / f"{name}.pt"
+    epochs, patience = effective_schedule(tcfg, len(train_loader))
     fit_out = fit(
         model, train_loader, val_loader, optimizer,
-        epochs=int(tcfg["epochs"]), patience=int(tcfg["patience"]), device=device,
+        epochs=epochs, patience=patience, device=device,
         criterion=criterion, log=log, ckpt_path=ckpt, warmup_ratio=float(tcfg.get("warmup_ratio", 0.0)),
     )
     extra = {
@@ -284,6 +300,7 @@ def run_supervised(cfg: Config, seed: int, label_fraction: float, log: Any, limi
         "label_fraction": label_fraction,
         "mask_variant": variant,
         "n_train": int(len(tr)),
+        "epochs_run_max": epochs,
         "limit": limit,
     }
     smoke_dir = str(Path(cfg["paths"]["results_dir"]) / "_smoke") if limit else None

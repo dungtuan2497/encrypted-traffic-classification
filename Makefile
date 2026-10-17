@@ -40,10 +40,10 @@ gru:
 	$(PY) scripts/train_torch.py --model gru $(ARGS)
 
 pretrain:
-	@echo "[Phase 4] not implemented yet"
+	$(PY) scripts/pretrain.py $(ARGS)
 
 finetune:
-	@echo "[Phase 4] not implemented yet"
+	$(PY) scripts/finetune.py $(ARGS)
 
 label-efficiency:
 	@echo "[Phase 5] not implemented yet"
