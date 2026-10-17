@@ -9,7 +9,7 @@ VENV       := .venv
 PY         := $(VENV)/bin/python
 ARGS       ?=
 
-.PHONY: setup setup-xgb download preprocess rf cnn gru pretrain finetune label-efficiency ablation report test clean-processed
+.PHONY: setup setup-xgb download preprocess rf xgb cnn gru pretrain finetune label-efficiency ablation report test clean-processed
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -28,7 +28,10 @@ preprocess:
 	$(PY) scripts/preprocess.py $(ARGS)
 
 rf:
-	@echo "[Phase 2] not implemented yet"
+	$(PY) scripts/train_sklearn.py --model rf $(ARGS)
+
+xgb:
+	$(PY) scripts/train_sklearn.py --model xgb $(ARGS)
 
 cnn:
 	@echo "[Phase 3] not implemented yet"
