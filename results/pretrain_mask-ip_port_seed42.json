@@ -1,0 +1,133 @@
+{
+  "run": "pretrain_mask-ip_port_seed42",
+  "model": "transformer_pretrain",
+  "stage": "pretrain",
+  "seed": 42,
+  "mask_variant": "ip_port",
+  "n_params": 3499268,
+  "n_pretrain_sessions": 65804,
+  "n_monitor_sessions": 1342,
+  "initial_monitor": {
+    "loss": 5.702480816415956,
+    "acc": 0.0024441024712591655
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 2.396419106826774,
+      "train_acc": 0.5739810745602114,
+      "monitor_loss": 1.844047639211767,
+      "monitor_acc": 0.6655426812709333,
+      "seconds": 506.8096934580244
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.7765978710884023,
+      "train_acc": 0.6766660295675829,
+      "monitor_loss": 1.704154885844687,
+      "monitor_acc": 0.6879016927672671,
+      "seconds": 501.78428095788695
+    },
+    {
+      "epoch": 3,
+      "train_loss": 1.6764939399008572,
+      "train_acc": 0.6939104177151485,
+      "monitor_loss": 1.6364640150823841,
+      "monitor_acc": 0.7003711414863764,
+      "seconds": 502.3595471670851
+    },
+    {
+      "epoch": 4,
+      "train_loss": 1.6251124038012927,
+      "train_acc": 0.7028805039976294,
+      "monitor_loss": 1.6030571564291467,
+      "monitor_acc": 0.7070471621254639,
+      "seconds": 502.6033893749118
+    },
+    {
+      "epoch": 5,
+      "train_loss": 1.605664289563829,
+      "train_acc": 0.7063218238830025,
+      "monitor_loss": 1.595186111529812,
+      "monitor_acc": 0.7078618629492169,
+      "seconds": 504.8170747088734
+    }
+  ],
+  "train_seconds": 2518.5774937500246,
+  "device": "mps",
+  "limit": null,
+  "checkpoint": "/Users/dungtuan/Documents/HUST/Ca\u0301c xu hu\u031bo\u031b\u0301ng trong chuye\u0302\u0309n \u0111o\u0302\u0309i so\u0302\u0301/ai-encrypt-traffic/checkpoints/transformer_pretrain_mask-ip_port_seed42.pt",
+  "config": {
+    "seed": 42,
+    "dataset": "datasets/ustc_tfc2016.yaml",
+    "paths": {
+      "processed_dir": "data/processed",
+      "results_dir": "results",
+      "reports_dir": "reports",
+      "checkpoints_dir": "checkpoints"
+    },
+    "preprocess": {
+      "max_packets_per_session": 32,
+      "max_sessions_per_class": 5000,
+      "min_packets_per_session": 1,
+      "min_sessions_per_class": 50,
+      "drop_tcp_no_payload": true,
+      "drop_dns": true,
+      "seq_len": 32,
+      "bytes_per_packet": 64,
+      "max_bytes": 784,
+      "mask_ip": true,
+      "mask_port": true,
+      "dedup_variant": "ip_port",
+      "max_packets_per_file": null,
+      "num_workers": 4
+    },
+    "split": {
+      "train": 0.8,
+      "val": 0.1,
+      "test": 0.1
+    },
+    "eval": {
+      "latency_warmup": 20,
+      "latency_iters": 200,
+      "throughput_batch": 256
+    },
+    "model": {
+      "name": "transformer",
+      "vocab_size": 260,
+      "max_len": 512,
+      "max_packets": 32,
+      "d_model": 256,
+      "n_layers": 4,
+      "n_heads": 4,
+      "ffn_dim": 1024,
+      "dropout": 0.1
+    },
+    "pretrain": {
+      "epochs": 5,
+      "batch_size": 32,
+      "lr": 0.0005,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.05,
+      "mask_prob": 0.15,
+      "mask_token_ratio": 0.8,
+      "random_token_ratio": 0.1
+    },
+    "finetune": {
+      "epochs": 5,
+      "batch_size": 32,
+      "lr_encoder": 5e-05,
+      "lr_scratch": 0.0005,
+      "lr_head": 0.001,
+      "warmup_ratio": 0.05,
+      "weight_decay": 0.01,
+      "patience": 5,
+      "min_steps": 1500,
+      "class_weight": true,
+      "label_fraction": 1.0,
+      "from_scratch": false
+    }
+  },
+  "git_commit": "f30095cd58d7b3db597af5294fcfaaa67f0800d0",
+  "timestamp": "2026-10-19T04:03:34"
+}

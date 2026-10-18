@@ -38,8 +38,8 @@ Lợi ích riêng của pre-train (Transformer pre-train − Transformer học t
 
 | Mô hình | Không che | Che IP (mặc định) | Che IP + port |
 |---|---|---|---|
-| 1D-CNN | chưa có kết quả | 0.9835 | chưa có kết quả |
-| Transformer (pre-train) | chưa có kết quả | 0.9887 | chưa có kết quả |
+| 1D-CNN | 0.9839 (+0.0005) | 0.9835 | 0.9800 (-0.0035) |
+| Transformer (pre-train) | 0.9909 (+0.0022) | 0.9887 | 0.9853 (-0.0034) |
 
 Giá trị là macro-F1 trên tập test; số trong ngoặc là chênh lệch so với cấu hình mặc định (che IP). Nếu bỏ che mà điểm tăng mạnh, hoặc che port mà điểm giảm mạnh, mô hình đang dựa vào định danh mạng (IP/port) thay vì đặc điểm lưu lượng.
 
@@ -48,6 +48,8 @@ Giá trị là macro-F1 trên tập test; số trong ngoặc là chênh lệch s
 | Biến thể mask | Seed | Epoch | MLM loss (held-out) | Độ chính xác byte bị che (held-out) | Thời gian |
 |---|---|---|---|---|---|
 | ip | 42 | 5 | 5.707 → 1.765 | 0.3% → 67.6% | 42.3 phút |
+| ip_port | 42 | 5 | 5.702 → 1.595 | 0.2% → 70.8% | 42.0 phút |
+| none | 42 | 5 | 5.732 → 2.325 | 0.3% → 57.8% | 42.5 phút |
 
 Pre-training chỉ dùng tập train (bỏ nhãn); 2% tập train được giữ riêng để theo dõi loss.
 
