@@ -11,8 +11,10 @@ model:
   dropout: 0.1
 
 pretrain:
-  epochs: 10
-  batch_size: 64
+  # Reduced from 10 epochs / batch 64 (option 1): on an Apple M2 (16 GB) batch 64 x 512
+  # tokens causes memory pressure; batch 32 runs ~11 min/epoch on the full train split.
+  epochs: 5
+  batch_size: 32
   lr: 5.0e-4
   weight_decay: 0.01
   warmup_ratio: 0.05
@@ -21,8 +23,8 @@ pretrain:
   random_token_ratio: 0.1
 
 finetune:
-  epochs: 15
-  batch_size: 64
+  epochs: 5              # reduced from 15 (option 1, laptop budget)
+  batch_size: 32
   lr_encoder: 5.0e-5     # pre-trained encoder
   lr_scratch: 5.0e-4     # encoder lr for the --from-scratch baseline
   lr_head: 1.0e-3

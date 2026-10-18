@@ -49,8 +49,8 @@ def finetune(
     te = limit_indices(data.splits["test"], limit, seed)
     bs = int(fcfg["batch_size"])
     train_loader = make_token_loader(x, y, tr, bs, shuffle=True, seed=seed)
-    val_loader = make_token_loader(x, y, va, 256, shuffle=False)
-    test_loader = make_token_loader(x, y, te, 256, shuffle=False)
+    val_loader = make_token_loader(x, y, va, 64, shuffle=False)
+    test_loader = make_token_loader(x, y, te, 64, shuffle=False)
 
     device = get_device(cfg.get("device"))
     model = build_transformer(mcfg, num_classes=len(data.classes))
@@ -77,12 +77,12 @@ def finetune(
         weight_decay=float(fcfg["weight_decay"]),
     )
     weights = class_weights(y[tr], len(data.classes)).to(device) if fcfg.get("class_weight", True) else None
-    epochs, patience = effective_schedule(fcfg, len(train_loader))
+    epochs, patience, eval_every = effective_schedule(fcfg, len(train_loader))
     mname = "transformer-scratch" if from_scratch else "transformer-pt"
     name = run_name(mname, seed, label_fraction, tag=f"mask-{variant}")
     fit_out = fit(
         model, train_loader, val_loader, opt,
-        epochs=epochs, patience=patience, device=device,
+        epochs=epochs, patience=patience, device=device, eval_every=eval_every,
         criterion=nn.CrossEntropyLoss(weight=weights), log=log,
         ckpt_path=resolve_path(cfg["paths"]["checkpoints_dir"]) / f"{name}.pt",
         warmup_ratio=float(fcfg.get("warmup_ratio", 0.0)),

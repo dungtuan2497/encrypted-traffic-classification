@@ -99,7 +99,7 @@ def pretrain(cfg: Config, seed: int, log: Any, limit: int | None = None) -> dict
     mon_idx, fit_idx = np.sort(perm[:n_mon]), np.sort(perm[n_mon:])
     bs = int(pcfg["batch_size"])
     train_loader = make_token_loader(x, None, fit_idx, bs, shuffle=True, seed=seed)
-    mon_loader = make_token_loader(x, None, mon_idx, 256, shuffle=False)
+    mon_loader = make_token_loader(x, None, mon_idx, 64, shuffle=False)
 
     device = get_device(cfg.get("device"))
     model = build_transformer(mcfg, num_classes=None).to(device)
@@ -115,6 +115,8 @@ def pretrain(cfg: Config, seed: int, log: Any, limit: int | None = None) -> dict
     history: list[dict[str, float]] = []
     loss0, acc0 = mlm_evaluate(model, mon_loader, pcfg, device)
     log.info(f"epoch  0 | held-out MLM loss {loss0:.4f} acc {acc0:.4f} (random init; ln(260)={math.log(260):.2f})")
+    ckpt = pretrain_ckpt_path(cfg, variant, seed)
+    ckpt.parent.mkdir(parents=True, exist_ok=True)
     start = time.perf_counter()
     for epoch in range(1, epochs + 1):
         model.train()
@@ -143,11 +145,10 @@ def pretrain(cfg: Config, seed: int, log: Any, limit: int | None = None) -> dict
             f"epoch {epoch:2d} | train MLM loss {rec['train_loss']:.4f} acc {rec['train_acc']:.4f} "
             f"| held-out loss {mon_loss:.4f} acc {mon_acc:.4f} | {rec['seconds']:.0f}s"
         )
+        # Save after every epoch so an interrupted run still leaves a usable encoder.
+        torch.save(model.encoder_state_dict(), ckpt)
     train_s = time.perf_counter() - start
 
-    ckpt = pretrain_ckpt_path(cfg, variant, seed)
-    ckpt.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(model.encoder_state_dict(), ckpt)
     log.info(f"saved encoder -> {ckpt}")
 
     name = f"pretrain_mask-{variant}_seed{seed}"

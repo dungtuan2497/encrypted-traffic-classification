@@ -83,8 +83,13 @@ def fit(
     ckpt_path: Path | None = None,
     warmup_ratio: float = 0.0,
     grad_clip: float | None = 1.0,
+    eval_every: int = 1,
 ) -> dict[str, Any]:
-    """Train with early stopping on val macro-F1; restores the best weights at the end."""
+    """Train with early stopping on val macro-F1; restores the best weights at the end.
+
+    Validation runs every `eval_every` epochs (and after the last one); `patience` counts
+    validations without improvement.
+    """
     total_steps = epochs * len(train_loader)
     scheduler = cosine_schedule(optimizer, total_steps, int(warmup_ratio * total_steps))
     history: list[dict[str, float]] = []
@@ -104,6 +109,8 @@ def fit(
             scheduler.step()
             run_loss += float(loss.detach()) * len(y)
             n += len(y)
+        if epoch % eval_every and epoch != epochs:
+            continue
         y_val, p_val, val_loss = evaluate(model, val_loader, device, criterion)
         val_f1 = macro_f1(y_val, p_val)
         rec = {
@@ -129,7 +136,7 @@ def fit(
             f"| val F1 {val_f1:.4f}{' *' if improved else ''} | {rec['seconds']:.1f}s"
         )
         if bad >= patience:
-            log.info(f"early stopping (no val F1 improvement for {patience} epochs)")
+            log.info(f"early stopping (no val F1 improvement for {patience} validations)")
             break
     if best_state is not None:
         model.load_state_dict(best_state)
@@ -217,19 +224,20 @@ def finalize_run(
     return payload
 
 
-def effective_schedule(tcfg: Config, batches_per_epoch: int) -> tuple[int, int]:
-    """(epochs, patience) guaranteeing at least `min_steps` optimizer steps.
+def effective_schedule(tcfg: Config, batches_per_epoch: int) -> tuple[int, int, int]:
+    """(epochs, patience, eval_every) guaranteeing at least `min_steps` optimizer steps.
 
-    With few labels (RQ2) an epoch is only a handful of steps, so the epoch budget and
-    the early-stopping patience are stretched by the same factor. Applied identically to
-    every torch model so the label-efficiency comparison stays fair.
+    With few labels (RQ2) an epoch is only a handful of steps, so the epoch budget is
+    stretched by a factor k and validation runs every k epochs, keeping the number of
+    validations (and the patience, counted in validations) as for full data. Applied
+    identically to every torch model so the label-efficiency comparison stays fair.
     """
     epochs, patience = int(tcfg["epochs"]), int(tcfg["patience"])
     min_steps = int(tcfg.get("min_steps", 0))
     if min_steps and epochs * batches_per_epoch < min_steps:
-        factor = math.ceil(min_steps / batches_per_epoch) / epochs
-        return math.ceil(epochs * factor), math.ceil(patience * factor)
-    return epochs, patience
+        every = math.ceil(min_steps / (epochs * batches_per_epoch))
+        return epochs * every, patience, every
+    return epochs, patience, 1
 
 
 def limit_indices(idx: np.ndarray, limit: int | None, seed: int) -> np.ndarray:
@@ -286,10 +294,10 @@ def run_supervised(cfg: Config, seed: int, label_fraction: float, log: Any, limi
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(tcfg["lr"]), weight_decay=float(tcfg["weight_decay"]))
     name = run_name(mname, seed, label_fraction, tag=f"mask-{variant}" if variant else None)
     ckpt = resolve_path(cfg["paths"]["checkpoints_dir"]) / f"{name}.pt"
-    epochs, patience = effective_schedule(tcfg, len(train_loader))
+    epochs, patience, eval_every = effective_schedule(tcfg, len(train_loader))
     fit_out = fit(
         model, train_loader, val_loader, optimizer,
-        epochs=epochs, patience=patience, device=device,
+        epochs=epochs, patience=patience, device=device, eval_every=eval_every,
         criterion=criterion, log=log, ckpt_path=ckpt, warmup_ratio=float(tcfg.get("warmup_ratio", 0.0)),
     )
     extra = {

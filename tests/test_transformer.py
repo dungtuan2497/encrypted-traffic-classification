@@ -61,6 +61,6 @@ def test_length_bucket_sampler_covers_all() -> None:
 
 
 def test_effective_schedule_stretches_for_few_labels() -> None:
-    assert effective_schedule({"epochs": 15, "patience": 5, "min_steps": 1500}, 1000) == (15, 5)
-    epochs, patience = effective_schedule({"epochs": 15, "patience": 5, "min_steps": 1500}, 10)
-    assert epochs * 10 >= 1500 and patience == 50
+    assert effective_schedule({"epochs": 15, "patience": 5, "min_steps": 1500}, 1000) == (15, 5, 1)
+    epochs, patience, every = effective_schedule({"epochs": 15, "patience": 5, "min_steps": 1500}, 10)
+    assert epochs * 10 >= 1500 and patience == 5 and every == 10 and epochs == 150
