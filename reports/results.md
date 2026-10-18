@@ -16,6 +16,7 @@
 | Random Forest | Học máy | 42 | 0.9301 | **0.9351** | 930,624 nút cây | 3.6 s | 7.56 ms | 24,840 mẫu/s |
 | BiGRU | Học sâu | 42 | 0.7880 | **0.7916** | 402,707 tham số | 4.4 phút | 1.57 ms | 5,260 mẫu/s |
 | 1D-CNN | Học sâu | 42 | 0.9864 | **0.9835** | 5,774,227 tham số | 5.3 phút | 0.73 ms | 2,521 mẫu/s |
+| Transformer (học từ đầu) | Học sâu | 42 | 0.9917 | **0.9908** | 3,504,151 tham số | 41.7 phút | 15.29 ms | 280 mẫu/s |
 | Transformer (pre-train) | Pre-training | 42 | 0.9912 | **0.9887** | 3,504,151 tham số | 41.7 phút fine-tune + 42.3 phút pre-train | 15.58 ms | 282 mẫu/s |
 
 Ghi chú: giá trị là trung bình ± độ lệch chuẩn qua các seed (nếu có hơn một seed). Độ trễ và throughput đo trên **1 luồng CPU** sau warm-up; huấn luyện trên GPU Apple M2 (MPS). Kích thước của Random Forest là tổng số nút cây. Transformer fine-tune ở mọi seed dùng chung encoder pre-train seed 42.
@@ -26,10 +27,10 @@ Ghi chú: giá trị là trung bình ± độ lệch chuẩn qua các seed (nế
 |---|---|---|---|---|
 | Random Forest | 0.8542 | 0.9084 | 0.9221 | 0.9351 |
 | 1D-CNN | 0.8833 | 0.9569 | 0.9712 | 0.9835 |
-| Transformer (học từ đầu) | 0.9273 | 0.9659 | chưa có kết quả | chưa có kết quả |
-| Transformer (pre-train) | 0.9476 | 0.9766 | chưa có kết quả | 0.9887 |
+| Transformer (học từ đầu) | 0.9273 | 0.9659 | 0.9813 | 0.9908 |
+| Transformer (pre-train) | 0.9476 | 0.9766 | 0.9794 | 0.9887 |
 
-Lợi ích riêng của pre-train (Transformer pre-train − Transformer học từ đầu, macro-F1): 1%: +0.0203; 5%: +0.0107.
+Lợi ích riêng của pre-train (Transformer pre-train − Transformer học từ đầu, macro-F1): 1%: +0.0203; 5%: +0.0107; 10%: -0.0019; 100%: -0.0021.
 
 ![RQ2 label efficiency](figures/label_efficiency.png)
 
@@ -54,11 +55,11 @@ Pre-training chỉ dùng tập train (bỏ nhãn); 2% tập train được giữ
 
 ## 6. Ma trận nhầm lẫn của mô hình tốt nhất
 
-Mô hình có macro-F1 trung bình cao nhất: **Transformer (pre-train)** (seed 42).
+Mô hình có macro-F1 trung bình cao nhất: **Transformer (học từ đầu)** (seed 42).
 
-Các lớp có F1 thấp nhất: Virut (0.908), Neris (0.930), Zeus (0.971), Shifu (0.986).
+Các lớp có F1 thấp nhất: Virut (0.914), Neris (0.931), Zeus (0.990), Nsis-ay (0.996).
 
-![Confusion matrix](figures/cm_transformer-pt_mask-ip_lf1_seed42.png)
+![Confusion matrix](figures/cm_transformer-scratch_mask-ip_lf1_seed42.png)
 
 ## 7. Hạn chế
 
