@@ -209,25 +209,43 @@ make test             # unit tests
 
 Any config value can be overridden with `--set key.sub=value` (e.g. `ARGS="--set train.epochs=5"`). Smoke runs with `--limit N` write to `results/_smoke/`, which is not committed.
 
-## 11. Current status
+## 11. Results
 
-| Phase | Status |
-|---|---|
-| 0 — Setup | done |
-| 1 — Preprocessing (83,930 sessions, 19 classes; train/val/test 67,146 / 8,392 / 8,392) | done |
-| 2 — Random Forest | done (seed 42) |
-| 3 — 1D-CNN, BiGRU | done (seed 42) |
-| 4 — Transformer pre-training / fine-tuning | code done; full pre-training not yet run (speed being optimised on Apple MPS) |
-| 5 — RQ1 (3 seeds), RQ2, RQ3 | not started |
-| 6 — Automated report | not started |
+All phases are complete. Numbers below come from `results/*.json`; the generated report with figures is [`reports/results.md`](reports/results.md) and the detailed analysis (Vietnamese) is [`PROGRESS.md`](PROGRESS.md). Hardware: Apple M2, 16 GB RAM (training on MPS, latency on a single CPU thread).
 
-Results so far (test split, seed 42, from `results/*.json`):
+**Dataset after preprocessing:** 83,930 sessions, 19 classes (Tinba excluded), train/val/test = 67,146 / 8,392 / 8,392.
 
-| Model | Accuracy | Macro-F1 | Size | Train time | Latency (batch 1, 1 CPU thread) |
-|---|---|---|---|---|---|
-| Random Forest | 0.9301 | 0.9351 | 930,624 tree nodes | 3.6 s | 7.56 ms |
-| 1D-CNN (IP masked) | 0.9864 | 0.9835 | 5,774,227 params | 315 s | 0.73 ms |
-| BiGRU | 0.7880 | 0.7916 | 402,707 params | 265 s | 1.57 ms |
-| Pre-trained Transformer | no result yet | no result yet | 3,504,151 params | — | — |
+### RQ1 — Generation comparison (100% labels, mean ± std over seeds 42/43/44)
 
-Hardware: Apple M2, 16 GB RAM (training on MPS, latency on CPU). See [`PROGRESS.md`](PROGRESS.md) for the detailed analysis.
+| Model | Generation | Accuracy | **Macro-F1** | Size | Train time | Latency (batch 1) | Throughput (batch 256) |
+|---|---|---|---|---|---|---|---|
+| Random Forest | ML | 0.9301 ± 0.0002 | 0.9352 ± 0.0003 | 930,624 tree nodes | 3.4 s | 7.45 ms | ~24,950/s |
+| BiGRU | DL | 0.8266 ± 0.0472 | 0.8289 ± 0.0468 | 402,707 params | 6.8 min | 1.57 ms | ~5,390/s |
+| 1D-CNN | DL | 0.9880 ± 0.0013 | 0.9850 ± 0.0015 | 5,774,227 params | 6.4 min | 0.64 ms | ~3,510/s |
+| Transformer, from scratch (seed 42 only) | DL | 0.9917 | 0.9908 | 3,504,151 params | 41.7 min | 15.29 ms | ~280/s |
+| **Transformer, pre-trained** | Pre-training | 0.9917 ± 0.0013 | **0.9890 ± 0.0013** | 3,504,151 params | 41.8 min fine-tune + 42.3 min pre-train | 15.75 ms | ~281/s |
+
+The Transformer is ~0.4–0.6 macro-F1 points better than the CNN, but costs ~13× more training time and ~25× more inference latency per sample.
+
+### RQ2 — Label efficiency (seed 42, test macro-F1)
+
+| Model | 1% labels | 5% | 10% | 100% |
+|---|---|---|---|---|
+| Random Forest | 0.8542 | 0.9084 | 0.9221 | 0.9351 |
+| 1D-CNN | 0.8833 | 0.9569 | 0.9713 | 0.9835 |
+| Transformer, from scratch | 0.9273 | 0.9659 | 0.9813 | 0.9908 |
+| **Transformer, pre-trained** | **0.9476** | **0.9766** | 0.9794 | 0.9887 |
+
+Pre-training helps only in the very-low-label regime (+0.020 at 1%, +0.011 at 5%); from 10% labels (~6,700 samples) on, the gain disappears. Most of the Transformer's advantage over the CNN comes from the architecture itself.
+
+### RQ3 — IP / port masking (seed 42, test macro-F1; difference vs. the default IP-masked setting)
+
+| Model | No masking | IP masked (default) | IP + port masked |
+|---|---|---|---|
+| 1D-CNN | 0.9839 (+0.0004) | 0.9835 | 0.9800 (−0.0035) |
+| Transformer, pre-trained | 0.9909 (+0.0022) | 0.9887 | 0.9853 (−0.0034) |
+
+IP addresses are not a shortcut on USTC-TFC2016; ports are a small one (the drop is concentrated on malware classes such as Shifu, Neris and Virut). With both masked the models still reach ~0.98, so the high scores mostly come from payload/header bytes — the dataset itself is easy, as the survey warns.
+
+### Limitations
+Old dataset with substantial plaintext and many IXIA-generated 1-packet sessions; a single dataset; scaled-down Transformer (byte tokens, ~3.5M parameters, 5 pre-training epochs — the MLM curve had flattened); RQ2/RQ3 use one seed; concept drift and open-set classification not studied.

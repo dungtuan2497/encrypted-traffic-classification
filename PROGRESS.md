@@ -1,6 +1,6 @@
 # Phân loại lưu lượng mạng mã hóa — từ Machine Learning đến Pre-training
 
-> Tài liệu tổng hợp tiến độ project (cập nhật 17/10/2026).
+> Tài liệu tổng hợp tiến độ project (cập nhật 19/10/2026 — đã hoàn thành Phase 0–6).
 > Mọi con số trong file này lấy từ các file kết quả thật trong `results/` và `data/processed/meta.json`. Mục nào chưa chạy được ghi rõ **"chưa có kết quả"**.
 
 ---
@@ -84,53 +84,94 @@ Các lớp ít dữ liệu: Shifu 362, Zeus 504, Virut 3.461, Htbot 4.700, Miure
 |---|---|---|
 | 0 | Khung project, cấu hình YAML, Makefile, tiện ích (seed, device, logger) | ✅ Xong |
 | 1 | Đọc pcap theo kiểu streaming (dpkt), tách session hai chiều, 3 dạng biểu diễn, 3 biến thể che IP/port, loại trùng, chia split | ✅ Xong |
-| 2 | Random Forest: chọn siêu tham số trên val, đánh giá trên test, feature importance | ✅ Xong (1 seed) |
-| 3 | Vòng lặp huấn luyện chung (AdamW, cosine LR, early stopping theo macro-F1, class weight); 1D-CNN; BiGRU | ✅ Xong (1 seed) |
-| 4 | Transformer: tokenizer, mô hình, pre-train MLM, fine-tune (`--from-scratch`, `--label-fraction`) | 🟡 **Code xong, chưa chạy đầy đủ** |
+| 2 | Random Forest: chọn siêu tham số trên val, đánh giá trên test, feature importance | ✅ Xong |
+| 3 | Vòng lặp huấn luyện chung; 1D-CNN; BiGRU | ✅ Xong |
+| 4 | Transformer: tokenizer, mô hình 3,5 triệu tham số, pre-train MLM (chỉ dùng tập train), fine-tune | ✅ Xong |
+| 5 | RQ1 (3 seed), RQ2 (1/5/10/100% nhãn), RQ3 (3 kiểu che) — 31 lần chạy, không có lần nào lỗi | ✅ Xong |
+| 6 | Báo cáo tự động `reports/results.md` + biểu đồ (`make report`) | ✅ Xong |
 
-Kiểm thử: **26/26 test pass** (`make test`). Có test dùng pcap tự tạo để kiểm tra gộp session hai chiều, hướng gói, vị trí byte bị che, độ dài pad, quy tắc che 80/10/10 của BERT và việc không rò rỉ giữa các split.
+Kiểm thử: **28/28 test pass** (`make test`).
+Toàn bộ số liệu chi tiết (F1 từng lớp, ma trận nhầm lẫn, lịch sử huấn luyện) nằm trong `results/*.json`. Bảng tổng hợp và biểu đồ nằm trong [`reports/results.md`](reports/results.md).
+Phần cứng: MacBook Apple M2, RAM 16 GB. Train trên GPU Apple (MPS), đo độ trễ trên **1 luồng CPU**.
 
-### Kết quả hiện có (tập test, seed 42, 19 lớp)
+### 3.1. RQ1 — So sánh các thế hệ (100% nhãn, trung bình ± độ lệch chuẩn qua seed 42/43/44)
 
-| Mô hình | Thế hệ | Accuracy | **Macro-F1** | Kích thước | Thời gian train | Độ trễ (batch=1, 1 luồng CPU) | Throughput (batch=256) |
+| Mô hình | Thế hệ | Accuracy | **Macro-F1** | Kích thước | Thời gian train | Độ trễ / mẫu | Throughput (batch 256) |
 |---|---|---|---|---|---|---|---|
-| Random Forest | Học máy | 0,9301 | 0,9351 | 930.624 nút cây | 3,6 giây | 7,56 ms | ~24.840 mẫu/giây |
-| **1D-CNN** (che IP) | Học sâu | **0,9864** | **0,9835** | 5.774.227 tham số | 315 giây | 0,73 ms | ~2.520 mẫu/giây |
-| BiGRU | Học sâu | 0,7880 | 0,7916 | 402.707 tham số | 265 giây | 1,57 ms | ~5.260 mẫu/giây |
-| Transformer pre-trained | Pre-training | *chưa có kết quả* | *chưa có kết quả* | 3.504.151 tham số | — | — | — |
+| Random Forest | Học máy | 0,9301 ± 0,0002 | 0,9352 ± 0,0003 | 930.624 nút cây | 3,4 giây | 7,45 ms | ~24.950 mẫu/giây |
+| BiGRU | Học sâu | 0,8266 ± 0,0472 | 0,8289 ± 0,0468 | 402.707 tham số | 6,8 phút | 1,57 ms | ~5.390 mẫu/giây |
+| 1D-CNN | Học sâu | 0,9880 ± 0,0013 | 0,9850 ± 0,0015 | 5.774.227 tham số | 6,4 phút | **0,64 ms** | ~3.510 mẫu/giây |
+| Transformer học từ đầu (1 seed) | Học sâu | 0,9917 | **0,9908** | 3.504.151 tham số | 41,7 phút | 15,29 ms | ~280 mẫu/giây |
+| **Transformer có pre-train** | Pre-training | **0,9917 ± 0,0013** | **0,9890 ± 0,0013** | 3.504.151 tham số | 41,8 phút fine-tune + 42,3 phút pre-train | 15,75 ms | ~281 mẫu/giây |
 
-Phần cứng: MacBook Apple M2, RAM 16 GB. Train trên GPU Apple (MPS), đo độ trễ trên CPU.
+**Nhận xét:**
+- Xếp hạng độ chính xác: **Transformer ≈ CNN > RF ≫ GRU**. Transformer (có hay không pre-train) hơn CNN khoảng 0,4–0,6 điểm macro-F1, lớn hơn độ lệch chuẩn giữa các seed (~0,0015) nên là khác biệt thật, nhưng nhỏ.
+- **Cái giá** của Transformer: tổng thời gian train gấp khoảng **13 lần** CNN (khoảng 84 phút so với 6,4 phút). Khi suy luận, Transformer chậm hơn CNN khoảng **25 lần** mỗi mẫu, và throughput chỉ bằng khoảng **1/90** so với RF. Đây chính là đánh đổi giữa độ chính xác và khả năng chạy thời gian thực mà bài báo nêu.
+- **Random Forest** train trong 3 giây, ổn định nhất (độ lệch chuẩn 0,0003) và dễ giải thích (feature importance), nhưng kém 5 điểm vì không đọc được nội dung byte. RF nhầm nhiều ở các lớp có session 1 gói (BitTorrent ↔ Outlook) và giữa SMB ↔ Weibo.
+- **GRU** yếu và không ổn định (0,79 → 0,88 tùy seed), vì nó chỉ nhìn kích thước và thời gian của gói, mà nhiều lớp chỉ có 1 gói. Mô hình chưa được tinh chỉnh vì là mô hình tùy chọn.
+- Lớp khó nhất với mọi mô hình học sâu là **Virut** và **Neris** (F1 khoảng 0,87–0,93), đều là mã độc.
 
-**Nhận xét ban đầu:**
-- **Random Forest** nhầm nhiều nhất ở BitTorrent và Outlook (36% BitTorrent bị đoán thành Outlook; cả hai đều là session 1 gói) và ở SMB và Weibo (nhầm qua lại 21–26%). Đặc trưng quan trọng nhất là kích thước gói chiều đi, giao thức TCP/UDP và khoảng thời gian giữa các gói. Phần này minh họa ưu điểm "dễ giải thích" của học máy.
-- **1D-CNN** đọc được byte nội dung nên sửa gần hết các lỗi trên: SMB, Weibo, BitTorrent, Outlook đều đạt F1 > 0,99. Lớp yếu nhất còn lại là Virut (0,87) và Neris (0,90), đều là mã độc.
-- **BiGRU** chỉ thấy kích thước và thời gian gói, nên gần như "mù" với các lớp có session 1 gói (SMB 0,33; BitTorrent 0,54). Mô hình chưa được tinh chỉnh vì là mô hình tùy chọn.
-- **Độ trễ**: CNN nhanh hơn RF khi xử lý từng mẫu, nhưng RF có throughput cao hơn khoảng 10 lần khi xử lý theo lô.
+### 3.2. RQ2 — Hiệu quả dữ liệu nhãn (seed 42, macro-F1 trên tập test)
 
-Kết quả chi tiết (F1 từng lớp, ma trận nhầm lẫn, lịch sử huấn luyện) nằm trong `results/*.json`. Hình nằm trong `reports/figures/`.
+| Mô hình | 1% nhãn (672 mẫu) | 5% | 10% | 100% |
+|---|---|---|---|---|
+| Random Forest | 0,8542 | 0,9084 | 0,9221 | 0,9351 |
+| 1D-CNN | 0,8833 | 0,9569 | 0,9713 | 0,9835 |
+| Transformer học từ đầu | 0,9273 | 0,9659 | 0,9813 | 0,9908 |
+| **Transformer có pre-train** | **0,9476** | **0,9766** | 0,9794 | 0,9887 |
+| *Lợi ích của pre-train* | *+0,020* | *+0,011* | *−0,002* | *−0,002* |
+
+Biểu đồ: [`reports/figures/label_efficiency.png`](reports/figures/label_efficiency.png).
+
+**Nhận xét:**
+- Bài báo cho rằng pre-train giúp giảm phụ thuộc vào dữ liệu có nhãn. Kết quả **ủng hộ có điều kiện**: pre-train chỉ giúp rõ khi **rất ít nhãn** (1% nhãn: +2,0 điểm; 5% nhãn: +1,1 điểm). Từ 10% nhãn (khoảng 6.700 mẫu) trở lên, lợi ích **biến mất**; chênh lệch 0,002 nằm trong dao động giữa các lần chạy.
+- **Kiến trúc Transformer** đóng góp nhiều hơn bản thân pre-train. Ở 1% nhãn, Transformer học từ đầu đã hơn CNN 4,4 điểm, còn pre-train chỉ thêm 2 điểm.
+- Với chỉ 5% nhãn, Transformer có pre-train (0,9766) đã gần bằng CNN dùng 100% nhãn (0,9835).
+- Có khả năng lợi ích của pre-train sẽ lớn hơn trên bộ dữ liệu khó hơn, hoặc khi pre-train trên lượng dữ liệu không nhãn lớn hơn nhiều so với dữ liệu fine-tune.
+
+### 3.3. RQ3 — Học tắt: che IP / port (seed 42, macro-F1 trên tập test)
+
+| Mô hình | Không che | Che IP (mặc định) | Che IP + port |
+|---|---|---|---|
+| 1D-CNN | 0,9839 (+0,0004) | 0,9835 | 0,9800 (−0,0035) |
+| Transformer có pre-train | 0,9909 (+0,0022) | 0,9887 | 0,9853 (−0,0034) |
+
+**Nhận xét:**
+- **Địa chỉ IP không phải lối tắt** trên USTC-TFC2016: bỏ che IP chỉ thay đổi dưới 0,25 điểm. Một lý do là phần lưu lượng lành tính do IXIA sinh ra dùng IP ngẫu nhiên ở mỗi luồng.
+- **Port là một lối tắt nhỏ**: che port làm giảm khoảng 0,35 điểm, chủ yếu ở các lớp **mã độc** (Transformer: Shifu −0,039, Neris −0,023, Virut −0,019; CNN: Neris −0,019, Virut −0,014). Mã độc thường dùng các cổng đặc trưng.
+- Khi che cả IP lẫn port, mô hình vẫn đạt khoảng **0,98**. Nghĩa là các con số 98–99% trên bộ này **chủ yếu đến từ nội dung byte** (bộ dữ liệu có nhiều plaintext và session 1 gói dễ nhận dạng), không phải do mô hình "ăn gian" bằng định danh mạng. Bài toán trên USTC-TFC2016 vốn **dễ**, đúng như bài báo đã cảnh báo.
+
+### 3.4. Pre-training (Masked Byte Modeling)
+
+| Biến thể mask | MLM loss (held-out) | Độ chính xác byte bị che | Thời gian |
+|---|---|---|---|
+| ip (mặc định) | 5,707 → 1,766 | 0,3% → 67,6% | 42,3 phút |
+| none | 5,732 → 2,325 | 0,3% → 57,8% | 42,5 phút |
+| ip_port | 5,702 → 1,595 | 0,2% → 70,8% | 42,0 phút |
+
+Đường cong loss đi ngang ở epoch 4–5 (epoch 5 chỉ giảm 0,007), nên 5 epoch là đủ. Loss của biến thể `none` cao hơn vì byte IP gần như ngẫu nhiên, không đoán được; hai con số MLM giữa các biến thể không so sánh trực tiếp được.
 
 ---
 
-## 4. Chưa làm được / đang dở
+## 4. Chưa làm / hạn chế
 
 | Việc | Ghi chú |
 |---|---|
-| **Pre-train Transformer trên dữ liệu đầy đủ** | Lần chạy thử cho thấy MLM loss giảm (pipeline đúng), nhưng tốc độ trên M2 ước tính khoảng **25 phút/epoch**, nên 10 epoch hết hơn 4 giờ. Đã sửa (làm tròn độ dài batch lên bội số 64 để GPU Apple không phải biên dịch lại liên tục) nhưng **chưa đo lại**. Nếu vẫn chậm, sẽ đề xuất giảm số epoch hoặc pre-train trên một phần tập train. |
-| Fine-tune Transformer (100% nhãn) | Chờ pre-train. |
-| **RQ1** — 3 seed (42, 43, 44), trung bình ± độ lệch chuẩn | Mới có seed 42 cho RF, CNN, GRU. |
-| **RQ2** — 1%, 5%, 10%, 100% nhãn | Code đã hỗ trợ (`--label-fraction`, lấy mẫu phân tầng, `min_steps` để công bằng khi ít nhãn). Chưa chạy. |
-| **RQ3** — che: không / IP / IP + port | Dữ liệu ba biến thể đã sinh sẵn trong `data/processed/bytes/{none,ip,ip_port}/`, CLI có `--mask`. Chưa chạy. |
-| Báo cáo tự động `reports/results.md` + biểu đồ RQ2 + bảng RQ3 | Chưa viết `report.py`. |
-| README đầy đủ (tiếng Việt) | Chưa. |
-| XGBoost (tùy chọn) | Code có sẵn (`make xgb`), cần `brew install libomp`. |
-| Demo Streamlit (tùy chọn) | Chưa. |
+| RQ2, RQ3 nhiều seed | Hiện chỉ chạy seed 42. Các chênh lệch nhỏ (< 0,005) nên được xem là ngang nhau. |
+| Pre-train 10 epoch như spec | Rút gọn còn 5 epoch (phương án 1) do phần cứng; đường cong đã đi ngang nên ảnh hưởng nhỏ. |
+| Transformer học từ đầu với 3 seed | Mới có seed 42 (đây là baseline của RQ2). |
+| Bộ dữ liệu thứ hai (ISCX VPN-nonVPN) | Chưa làm; code đã hỗ trợ đổi bộ dữ liệu qua file mapping. |
+| XGBoost, demo Streamlit (tùy chọn) | Chưa làm. XGBoost có sẵn code (`make xgb`, cần `brew install libomp`). |
+| Concept drift, tập mở, tấn công đối kháng | Ngoài phạm vi. |
 
 ### Các điều chỉnh so với đặc tả ban đầu (đều có ghi chú trong code)
-- `min_packets_per_session = 1` thay vì 3 (phương án A ở trên); lớp nào có dưới 50 session thì bị loại tự động.
+- `min_packets_per_session = 1` thay vì 3 (phương án A); lớp có dưới 50 session bị loại tự động (Tinba), còn 19 lớp.
 - Sinh luôn cả 3 biến thể che trong một lần tiền xử lý. Loại trùng dùng hash của biến thể che nặng nhất (`ip_port`), nên không biến thể nào bị trùng giữa train và test.
 - Session xác định bằng 5-tuple, không có timeout.
-- Độ trễ đo trên **1 luồng CPU** cho mọi mô hình để so sánh công bằng.
+- Độ trễ đo trên **1 luồng CPU** cho mọi mô hình.
+- Transformer: pre-train 5 epoch, fine-tune tối đa 5 epoch, batch 32 (do giới hạn bộ nhớ của M2 16 GB). Fine-tune ở seed 43/44 dùng chung encoder pre-train seed 42.
 - Transformer from-scratch dùng learning rate encoder lớn hơn (5e-4 thay vì 5e-5), vì 5e-5 là mức dành cho fine-tune.
+- Khi ít nhãn, số epoch được giãn để mọi mô hình torch có ít nhất 1.500 bước tối ưu, với số lần đánh giá trên val giữ nguyên (áp dụng như nhau cho mọi mô hình).
 
 ---
 
@@ -143,8 +184,10 @@ make preprocess       # khoảng 20 giây trên M2; chạy thử: make preproces
 make rf               # Random Forest (khoảng 1 phút gồm grid search)
 make cnn              # 1D-CNN (khoảng 5 phút trên M2)
 make gru              # BiGRU (khoảng 4–5 phút)
-make pretrain         # Transformer MLM (đang tối ưu tốc độ)
-make finetune         # Fine-tune; thêm ARGS="--from-scratch --label-fraction 0.1" ...
+make pretrain         # Transformer MLM (~42 phút trên M2)
+make finetune         # Fine-tune (~42 phút); thêm ARGS="--from-scratch --label-fraction 0.1" ...
+make experiments      # toàn bộ RQ1–RQ3 (~6,5 giờ trên M2, chạy nền được)
+make report           # sinh reports/results.md
 make test             # chạy toàn bộ unit test
 ```
 

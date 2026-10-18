@@ -304,7 +304,14 @@ def render(cfg: Config, runs: list[dict[str, Any]], meta: dict[str, Any] | None,
         run = next(r for r in classifier_runs(runs) if r["model"] == best["model"] and r["seed"] == min(best["seeds"])
                    and r["label_fraction"] == 1.0 and is_default_mask(r))
         cm_name = "cm_" + run["_file"].removesuffix(".json") + ".png"
-        L.append(f"Mô hình có macro-F1 trung bình cao nhất: **{best['label']}** (seed {run['seed']}).")
+        n_seeds = len(best["seeds"])
+        L.append(f"Mô hình có macro-F1 trung bình cao nhất: **{best['label']}** "
+                 f"({n_seeds} seed; hình dưới là seed {run['seed']}).")
+        close = [r["label"] for r in rows if r is not best and best["macro_f1"][0] - r["macro_f1"][0] < 0.005]
+        if close:
+            L.append("")
+            L.append(f"Lưu ý: chênh lệch với {', '.join(close)} nhỏ hơn 0.005 macro-F1, "
+                     "cùng cỡ với độ lệch chuẩn giữa các seed, nên không đủ để khẳng định mô hình nào tốt hơn.")
         L.append("")
         worst = sorted(run["test"]["per_class_f1"].items(), key=lambda x: x[1])[:4]
         L.append("Các lớp có F1 thấp nhất: " + ", ".join(f"{c} ({v:.3f})" for c, v in worst) + ".")

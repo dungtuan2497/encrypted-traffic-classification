@@ -13,11 +13,11 @@
 
 | Mô hình | Thế hệ | Seed | Accuracy | **Macro-F1** | Kích thước | Thời gian train | Độ trễ (batch 1) | Throughput (batch 256) |
 |---|---|---|---|---|---|---|---|---|
-| Random Forest | Học máy | 42 | 0.9301 | **0.9351** | 930,624 nút cây | 3.6 s | 7.56 ms | 24,840 mẫu/s |
-| BiGRU | Học sâu | 42 | 0.7880 | **0.7916** | 402,707 tham số | 4.4 phút | 1.57 ms | 5,260 mẫu/s |
-| 1D-CNN | Học sâu | 42 | 0.9864 | **0.9835** | 5,774,227 tham số | 5.3 phút | 0.73 ms | 2,521 mẫu/s |
+| Random Forest | Học máy | 42, 43, 44 | 0.9301 ± 0.0002 | **0.9352 ± 0.0003** | 930,624 nút cây | 3.4 s | 7.45 ms | 24,951 mẫu/s |
+| BiGRU | Học sâu | 42, 43, 44 | 0.8266 ± 0.0472 | **0.8289 ± 0.0468** | 402,707 tham số | 6.8 phút | 1.57 ms | 5,389 mẫu/s |
+| 1D-CNN | Học sâu | 42, 43, 44 | 0.9880 ± 0.0013 | **0.9850 ± 0.0015** | 5,774,227 tham số | 6.4 phút | 0.64 ms | 3,514 mẫu/s |
 | Transformer (học từ đầu) | Học sâu | 42 | 0.9917 | **0.9908** | 3,504,151 tham số | 41.7 phút | 15.29 ms | 280 mẫu/s |
-| Transformer (pre-train) | Pre-training | 42 | 0.9912 | **0.9887** | 3,504,151 tham số | 41.7 phút fine-tune + 42.3 phút pre-train | 15.58 ms | 282 mẫu/s |
+| Transformer (pre-train) | Pre-training | 42, 43, 44 | 0.9917 ± 0.0013 | **0.9890 ± 0.0013** | 3,504,151 tham số | 41.8 phút fine-tune + 42.3 phút pre-train | 15.75 ms | 281 mẫu/s |
 
 Ghi chú: giá trị là trung bình ± độ lệch chuẩn qua các seed (nếu có hơn một seed). Độ trễ và throughput đo trên **1 luồng CPU** sau warm-up; huấn luyện trên GPU Apple M2 (MPS). Kích thước của Random Forest là tổng số nút cây. Transformer fine-tune ở mọi seed dùng chung encoder pre-train seed 42.
 
@@ -57,7 +57,9 @@ Pre-training chỉ dùng tập train (bỏ nhãn); 2% tập train được giữ
 
 ## 6. Ma trận nhầm lẫn của mô hình tốt nhất
 
-Mô hình có macro-F1 trung bình cao nhất: **Transformer (học từ đầu)** (seed 42).
+Mô hình có macro-F1 trung bình cao nhất: **Transformer (học từ đầu)** (1 seed; hình dưới là seed 42).
+
+Lưu ý: chênh lệch với Transformer (pre-train) nhỏ hơn 0.005 macro-F1, cùng cỡ với độ lệch chuẩn giữa các seed, nên không đủ để khẳng định mô hình nào tốt hơn.
 
 Các lớp có F1 thấp nhất: Virut (0.914), Neris (0.931), Zeus (0.990), Nsis-ay (0.996).
 
