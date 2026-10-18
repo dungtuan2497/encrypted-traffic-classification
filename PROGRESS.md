@@ -87,7 +87,7 @@ Các lớp ít dữ liệu: Shifu 362, Zeus 504, Virut 3.461, Htbot 4.700, Miure
 | 2 | Random Forest: chọn siêu tham số trên val, đánh giá trên test, feature importance | ✅ Xong |
 | 3 | Vòng lặp huấn luyện chung; 1D-CNN; BiGRU | ✅ Xong |
 | 4 | Transformer: tokenizer, mô hình 3,5 triệu tham số, pre-train MLM (chỉ dùng tập train), fine-tune | ✅ Xong |
-| 5 | RQ1 (3 seed), RQ2 (1/5/10/100% nhãn), RQ3 (3 kiểu che) — 31 lần chạy, không có lần nào lỗi | ✅ Xong |
+| 5 | RQ1 (3 seed), RQ2 (1/5/10/100% nhãn), RQ3 (3 kiểu che) — 32 lần chạy (29 lần huấn luyện phân loại + 3 lần pre-train), không có lần nào lỗi | ✅ Xong |
 | 6 | Báo cáo tự động `reports/results.md` + biểu đồ (`make report`) | ✅ Xong |
 
 Kiểm thử: **28/28 test pass** (`make test`).
