@@ -127,6 +127,7 @@ def plot_rq2(table: dict[str, dict[float, float]], path: Path) -> bool:
         return False
     fig, ax = plt.subplots(figsize=(7.5, 4.6), facecolor=SURFACE)
     ax.set_facecolor(SURFACE)
+    ends: list[tuple[float, float, str]] = []
     for model in RQ2_MODELS:
         pts = sorted(table.get(model, {}).items())
         if not pts:
@@ -134,12 +135,20 @@ def plot_rq2(table: dict[str, dict[float, float]], path: Path) -> bool:
         xs, ys = zip(*pts)
         ax.plot(xs, ys, color=COLORS[model], linewidth=2, marker=MARKERS[model], markersize=8,
                 markeredgecolor=SURFACE, markeredgewidth=2, label=LABEL[model], zorder=3)
-        ax.annotate(f"{ys[-1]:.3f}", (xs[-1], ys[-1]), xytext=(8, 0), textcoords="offset points",
+        ends.append((xs[-1], ys[-1], f"{ys[-1]:.3f}"))
+    # End-of-line value labels, nudged apart vertically so close values never overlap.
+    lo, hi = ax.get_ylim()
+    gap = 0.045 * (hi - lo)
+    placed: list[float] = []
+    for x, y, text in sorted(ends, key=lambda e: e[1]):
+        ty = max(y, placed[-1] + gap) if placed else y
+        placed.append(ty)
+        ax.annotate(text, (x, y), xytext=(x * 1.12, ty), textcoords="data",
                     va="center", fontsize=9, color=INK_MUTED)
     ax.set_xscale("log")
     ax.set_xticks(RQ2_FRACTIONS, ["1%", "5%", "10%", "100%"])
     ax.minorticks_off()
-    ax.set_xlim(0.008, 1.6)
+    ax.set_xlim(0.008, 1.9)
     ax.set_xlabel("Tỷ lệ dữ liệu có nhãn dùng để huấn luyện (thang log)", color=INK_MUTED)
     ax.set_ylabel("Macro-F1 trên tập test", color=INK_MUTED)
     ax.set_title("RQ2 — Hiệu quả dữ liệu nhãn (seed 42)", color=INK, loc="left")
