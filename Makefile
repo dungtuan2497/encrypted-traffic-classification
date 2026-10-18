@@ -9,7 +9,7 @@ VENV       := .venv
 PY         := $(VENV)/bin/python
 ARGS       ?=
 
-.PHONY: setup setup-xgb download preprocess rf xgb cnn gru pretrain finetune label-efficiency ablation report test clean-processed
+.PHONY: setup setup-xgb download preprocess rf xgb cnn gru pretrain finetune experiments label-efficiency ablation report test clean-processed
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -45,14 +45,18 @@ pretrain:
 finetune:
 	$(PY) scripts/finetune.py $(ARGS)
 
-label-efficiency:
-	@echo "[Phase 5] not implemented yet"
+# Full Phase 5 queue (RQ1 extra seeds, RQ2, RQ3); safe to re-run, finished jobs are skipped
+experiments:
+	sh scripts/run_experiments.sh
 
-ablation:
-	@echo "[Phase 5] not implemented yet"
+label-efficiency: experiments
+
+
+ablation: experiments
+
 
 report:
-	@echo "[Phase 6] not implemented yet"
+	$(PY) scripts/report.py $(ARGS)
 
 test:
 	$(PY) -m pytest

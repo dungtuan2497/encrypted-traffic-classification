@@ -1,0 +1,680 @@
+{
+  "run": "rf_lf0.1_seed42",
+  "model": "rf",
+  "generation": "machine_learning",
+  "input": "statistical_features",
+  "seed": 42,
+  "label_fraction": 0.1,
+  "mask_variant": null,
+  "n_train": 6714,
+  "best_params": {
+    "max_depth": null,
+    "min_samples_leaf": 1
+  },
+  "val_macro_f1": 0.9153659163311247,
+  "grid_search": [
+    {
+      "params": {
+        "max_depth": null,
+        "min_samples_leaf": 1
+      },
+      "val_macro_f1": 0.9153659163311247,
+      "fit_seconds": 0.47874779207631946
+    },
+    {
+      "params": {
+        "max_depth": null,
+        "min_samples_leaf": 2
+      },
+      "val_macro_f1": 0.9130830813186114,
+      "fit_seconds": 0.4634269999805838
+    },
+    {
+      "params": {
+        "max_depth": null,
+        "min_samples_leaf": 5
+      },
+      "val_macro_f1": 0.9048900160106882,
+      "fit_seconds": 0.48259304207749665
+    },
+    {
+      "params": {
+        "max_depth": 20,
+        "min_samples_leaf": 1
+      },
+      "val_macro_f1": 0.9144846771497391,
+      "fit_seconds": 0.4670923750381917
+    },
+    {
+      "params": {
+        "max_depth": 20,
+        "min_samples_leaf": 2
+      },
+      "val_macro_f1": 0.9133513568149091,
+      "fit_seconds": 0.4608768329489976
+    },
+    {
+      "params": {
+        "max_depth": 20,
+        "min_samples_leaf": 5
+      },
+      "val_macro_f1": 0.905447696124761,
+      "fit_seconds": 0.4553335830569267
+    },
+    {
+      "params": {
+        "max_depth": 40,
+        "min_samples_leaf": 1
+      },
+      "val_macro_f1": 0.9153659163311247,
+      "fit_seconds": 0.6024133327882737
+    },
+    {
+      "params": {
+        "max_depth": 40,
+        "min_samples_leaf": 2
+      },
+      "val_macro_f1": 0.9130830813186114,
+      "fit_seconds": 0.4695215420797467
+    },
+    {
+      "params": {
+        "max_depth": 40,
+        "min_samples_leaf": 5
+      },
+      "val_macro_f1": 0.9048900160106882,
+      "fit_seconds": 0.4609100418165326
+    }
+  ],
+  "test": {
+    "accuracy": 0.9159914204003813,
+    "macro_precision": 0.9291004790083851,
+    "macro_recall": 0.9237062978263694,
+    "macro_f1": 0.9221115335054167,
+    "per_class_f1": {
+      "BitTorrent": 0.779126213592233,
+      "Cridex": 1.0,
+      "FTP": 0.9868819374369324,
+      "Facetime": 1.0,
+      "Geodo": 0.9940119760479041,
+      "Gmail": 0.9433962264150944,
+      "Htbot": 0.959915611814346,
+      "Miuref": 0.9928789420142421,
+      "MySQL": 0.975609756097561,
+      "Neris": 0.8464017185821697,
+      "Nsis-ay": 0.9776422764227642,
+      "Outlook": 0.8136696501220505,
+      "SMB": 0.6965174129353234,
+      "Shifu": 1.0,
+      "Skype": 0.999000999000999,
+      "Virut": 0.8537549407114624,
+      "Weibo": 0.7213114754098361,
+      "WorldOfWarcraft": 1.0,
+      "Zeus": 0.98
+    },
+    "confusion_matrix": [
+      [
+        321,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        179,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        500,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        489,
+        0,
+        0,
+        0,
+        0,
+        0,
+        11,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        500,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        498,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        450,
+        0,
+        0,
+        0,
+        0,
+        0,
+        49,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        455,
+        5,
+        0,
+        7,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        488,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        500,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        3,
+        2,
+        16,
+        0,
+        0,
+        394,
+        2,
+        0,
+        7,
+        0,
+        1,
+        74,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        481,
+        0,
+        0,
+        0,
+        0,
+        15,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        500,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        3,
+        0,
+        14,
+        6,
+        0,
+        1,
+        350,
+        0,
+        0,
+        0,
+        124,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        36,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        500,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        20,
+        0,
+        0,
+        0,
+        0,
+        0,
+        324,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        148,
+        0,
+        0,
+        0,
+        352,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        500,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        49
+      ]
+    ]
+  },
+  "n_params": 240516,
+  "n_params_kind": "tree_nodes",
+  "train_seconds": 0.47874779207631946,
+  "grid_search_seconds": 4.806151791010052,
+  "latency": {
+    "latency_ms_batch1": 7.422710625687614,
+    "throughput_per_s": 25038.368936781128,
+    "throughput_batch": 256
+  },
+  "feature_importance_top": [
+    {
+      "feature": "fwd_size_mean",
+      "importance": 0.05177034038945392
+    },
+    {
+      "feature": "fwd_size_p25",
+      "importance": 0.05133753806718957
+    },
+    {
+      "feature": "fwd_size_min",
+      "importance": 0.05008865433039808
+    },
+    {
+      "feature": "is_tcp",
+      "importance": 0.04762951996044388
+    },
+    {
+      "feature": "all_iat_min",
+      "importance": 0.044145763763635604
+    },
+    {
+      "feature": "fwd_size_max",
+      "importance": 0.04032918815181041
+    },
+    {
+      "feature": "all_size_p25",
+      "importance": 0.03722171637042144
+    },
+    {
+      "feature": "fwd_size_p75",
+      "importance": 0.03711112060474464
+    },
+    {
+      "feature": "fwd_size_p50",
+      "importance": 0.03501761672756532
+    },
+    {
+      "feature": "fwd_n_bytes",
+      "importance": 0.03488803129291281
+    },
+    {
+      "feature": "all_size_min",
+      "importance": 0.0322618034911534
+    },
+    {
+      "feature": "all_iat_max",
+      "importance": 0.031844991761084546
+    },
+    {
+      "feature": "all_size_mean",
+      "importance": 0.030678026650354812
+    },
+    {
+      "feature": "all_iat_mean",
+      "importance": 0.030235445223858206
+    },
+    {
+      "feature": "all_size_max",
+      "importance": 0.029934429606526158
+    }
+  ],
+  "classes": [
+    "BitTorrent",
+    "Cridex",
+    "FTP",
+    "Facetime",
+    "Geodo",
+    "Gmail",
+    "Htbot",
+    "Miuref",
+    "MySQL",
+    "Neris",
+    "Nsis-ay",
+    "Outlook",
+    "SMB",
+    "Shifu",
+    "Skype",
+    "Virut",
+    "Weibo",
+    "WorldOfWarcraft",
+    "Zeus"
+  ],
+  "config": {
+    "seed": 42,
+    "dataset": "datasets/ustc_tfc2016.yaml",
+    "paths": {
+      "processed_dir": "data/processed",
+      "results_dir": "results",
+      "reports_dir": "reports",
+      "checkpoints_dir": "checkpoints"
+    },
+    "preprocess": {
+      "max_packets_per_session": 32,
+      "max_sessions_per_class": 5000,
+      "min_packets_per_session": 1,
+      "min_sessions_per_class": 50,
+      "drop_tcp_no_payload": true,
+      "drop_dns": true,
+      "seq_len": 32,
+      "bytes_per_packet": 64,
+      "max_bytes": 784,
+      "mask_ip": true,
+      "mask_port": false,
+      "dedup_variant": "ip_port",
+      "max_packets_per_file": null,
+      "num_workers": 4
+    },
+    "split": {
+      "train": 0.8,
+      "val": 0.1,
+      "test": 0.1
+    },
+    "eval": {
+      "latency_warmup": 20,
+      "latency_iters": 200,
+      "throughput_batch": 256
+    },
+    "model": {
+      "name": "rf",
+      "n_estimators": 300,
+      "class_weight": "balanced",
+      "grid": {
+        "max_depth": [
+          null,
+          20,
+          40
+        ],
+        "min_samples_leaf": [
+          1,
+          2,
+          5
+        ]
+      }
+    },
+    "xgb": {
+      "n_estimators": 300,
+      "grid": {
+        "max_depth": [
+          4,
+          6,
+          8
+        ],
+        "learning_rate": [
+          0.05,
+          0.1,
+          0.3
+        ]
+      }
+    },
+    "top_k_features": 15
+  },
+  "git_commit": "b7495c0b60a811de71746a7210616082273950c2",
+  "timestamp": "2026-10-19T00:47:08"
+}
