@@ -16,7 +16,7 @@ Most Internet traffic is now encrypted (HTTPS/TLS, VPN), so packet payloads can 
 
 | Generation | Model | Input |
 |---|---|---|
-| Traditional ML | Random Forest (XGBoost optional) | 54 statistical flow features |
+| Traditional ML | Random Forest (XGBoost optional) | 45 statistical flow features |
 | Deep learning | 1D-CNN (Wang et al. 2017) | first 784 bytes of the session |
 | Deep learning (optional) | BiGRU (simplified FS-Net) | directed packet-size sequence + inter-arrival times |
 | **Pre-training** (focus) | Small ET-BERT-style Transformer (~3.5M parameters) | byte tokens, pre-trained with Masked Byte Modeling |

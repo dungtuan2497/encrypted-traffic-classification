@@ -19,7 +19,7 @@ Bài báo chia lịch sử lĩnh vực thành 4 thế hệ: luật plaintext →
 
 | Thế hệ | Mô hình | Đầu vào |
 |---|---|---|
-| Học máy truyền thống | Random Forest | 54 đặc trưng thống kê của session |
+| Học máy truyền thống | Random Forest | 45 đặc trưng thống kê của session |
 | Học sâu | 1D-CNN (Wang et al. 2017) | 784 byte đầu của session |
 | Học sâu (tùy chọn) | BiGRU (rút gọn từ FS-Net) | Chuỗi kích thước gói + thời gian giữa các gói |
 | **Pre-training** (trọng tâm) | Transformer kiểu ET-BERT, khoảng 3,5 triệu tham số | Chuỗi token byte, pre-train bằng Masked Byte Modeling |
